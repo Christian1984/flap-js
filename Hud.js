@@ -1,0 +1,4 @@
+class Hud extends Showable
+{
+    
+}
