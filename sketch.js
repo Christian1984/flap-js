@@ -9,11 +9,11 @@ const BIRD_RADIUS = 10;
 const PIPE_WIDTH = 40;
 const PIPE_MIN_GAP = 80;
 const PIPE_MAX_GAP = 160;
-const PIPE_MIN_DISTANCE = 100;
-const PIPE_MAX_DISTANCE = 200;
+const PIPE_MIN_DISTANCE = 250;
+const PIPE_MAX_DISTANCE = 400;
 const PIPE_VELOCITY = 3;
 
-const GRAVITY = 0.0981;
+const GRAVITY = 0.1;
 const FLAP_FORCE = 4;
 
 let pipes;
@@ -21,40 +21,49 @@ let renderer;
 let floor;
 let ceiling;
 let bird;
+let hud;
+
+let pipeDistance;
+let nextPipeDistance;
 
 function setup() 
 {
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+    frameRate(60);
+    restart();
+}
+
+function restart()
+{
     renderer = new Renderer();
 
     floor = new Bounds(true, BOUNDS_THICKNESS);
     ceiling = new Bounds(false, BOUNDS_THICKNESS);
+    
+    pipes = new Pipes();
+    pipes.spawnPipe();
+    renderer.addShowable(pipes);
 
-    pipes = [];
-    pipes.push(new Pipe());
-
-    bird = new Bird(0.1 * width, 0.5 * height);
-
+    bird = new Bird(0.1 * width, 0.5 * height, pipes);
+    
     renderer.addShowable(floor);
     renderer.addShowable(ceiling);
-
-    for (let pipe of pipes)
-    {
-        renderer.addShowable(pipe);
-    }
-
+    
     renderer.addShowable(bird);
+
+    hud = new Hud();
+    renderer.addShowable(hud);
 }
 
 function draw() 
 {
-    for (let pipe of pipes)
+    if (!bird.alive)
     {
-        pipe.update();
+        restart();
     }
 
     bird.update();
-
+    pipes.update();
     renderer.render();
 }
 

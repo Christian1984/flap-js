@@ -13,21 +13,24 @@ class Pipe extends GameObject
             bottom: gap_pos + gap_height
         };
 
-        console.log(this.gap);
-
         this.vel.x = -PIPE_VELOCITY;
     }
 
     update()
     {
         super.update();
+
+        if (this.pos.x + PIPE_WIDTH < 0)
+        {
+            this.die();
+        }
     }
 
     show()
     {
         noStroke();
-        fill(0);
-        rect(this.pos.x, 0, PIPE_WIDTH, this.gap.top);
-        rect(this.pos.x, this.gap.bottom, PIPE_WIDTH, height - this.gap.bottom);
+        fill(255);
+        rect(this.pos.x, -5, PIPE_WIDTH, this.gap.top + 5);
+        rect(this.pos.x, this.gap.bottom, PIPE_WIDTH, height - this.gap.bottom + 5);
     }
 }
