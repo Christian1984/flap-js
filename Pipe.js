@@ -32,6 +32,7 @@ class Pipe extends GameObject
     {
         noStroke();
         fill(255);
+        rectMode(CORNER);
         rect(this.pos.x, -5, PIPE_WIDTH, this.gap.top + 5);
         rect(this.pos.x, this.gap.bottom, PIPE_WIDTH, height - this.gap.bottom + 5);
     }

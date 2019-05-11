@@ -40,21 +40,21 @@ class Bird extends GameObject
 
     show()
     {
+        fill(255);
         
         if (!this.alive)
         {
-            return;
+            fill(100);
         }
         
         stroke(0);
-        fill(255);
         ellipseMode(RADIUS);
         ellipse(this.pos.x, this.pos.y, BIRD_RADIUS, BIRD_RADIUS);
     }
 
     inBounds()
     {
-        return this.pos.y - BIRD_RADIUS / 2 >= BOUNDS_THICKNESS && this.pos.y + BIRD_RADIUS <= height - BOUNDS_THICKNESS;
+        return this.pos.y - BIRD_RADIUS >= BOUNDS_THICKNESS && this.pos.y + BIRD_RADIUS <= height - BOUNDS_THICKNESS;
     }
 
     pipeCollision()

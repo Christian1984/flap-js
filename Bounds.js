@@ -2,16 +2,17 @@ class Bounds extends GameObject
 {
     constructor(isFloor, thickness)
     {
-        super(-5, isFloor ? height - thickness + 5 : -5);
+        super(0, isFloor ? height - thickness : 0);
 
-        this.width = width + 10;
-        this.height = thickness + 5;
+        this.width = width;
+        this.height = thickness;
     }
 
     show()
     {
         noStroke();
         fill(255);
+        rectMode(CORNER);
         rect(this.pos.x, this.pos.y, this.width, this.height);
     }
 }
