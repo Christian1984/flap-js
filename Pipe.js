@@ -14,6 +14,8 @@ class Pipe extends GameObject
         };
 
         this.vel.x = -PIPE_VELOCITY;
+
+        this.passed = false;
     }
 
     update()

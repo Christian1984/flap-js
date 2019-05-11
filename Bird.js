@@ -4,6 +4,8 @@ class Bird extends GameObject
     {
         super(xPos, yPos);
         this.pipes = pipes;
+        this.pipesPassed = 0;
+        this.framesAlive = 0;
     }
 
     update()
@@ -14,6 +16,7 @@ class Bird extends GameObject
         }
 
         super.update();
+
         this.acc.y = GRAVITY;
 
         if (!this.inBounds() || this.pipeCollision())
@@ -21,6 +24,8 @@ class Bird extends GameObject
             this.die();
         }
 
+        this.checkPipePassed();
+        this.framesAlive++;
     }
 
     flap()
@@ -35,11 +40,12 @@ class Bird extends GameObject
 
     show()
     {
+        
         if (!this.alive)
         {
             return;
         }
-
+        
         stroke(0);
         fill(255);
         ellipseMode(RADIUS);
@@ -48,7 +54,7 @@ class Bird extends GameObject
 
     inBounds()
     {
-        return this.pos.y - BIRD_RADIUS >= BOUNDS_THICKNESS && this.pos.y + BIRD_RADIUS <= height - BOUNDS_THICKNESS;
+        return this.pos.y - BIRD_RADIUS / 2 >= BOUNDS_THICKNESS && this.pos.y + BIRD_RADIUS <= height - BOUNDS_THICKNESS;
     }
 
     pipeCollision()
@@ -72,5 +78,21 @@ class Bird extends GameObject
         }
 
         return false;
+    }
+
+    checkPipePassed()
+    {
+        if(this.pipes.pipes.length == 0)
+        {
+            return;
+        }
+
+        let pipe = this.pipes.pipes[0];
+
+        if (this.pos.x - BIRD_RADIUS > pipe.pos.x + PIPE_WIDTH && !pipe.passed)
+        {
+            pipe.passed = true;
+            this.pipesPassed++;
+        }
     }
 }

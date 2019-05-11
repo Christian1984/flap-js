@@ -23,8 +23,8 @@ let ceiling;
 let bird;
 let hud;
 
-let pipeDistance;
-let nextPipeDistance;
+let pipesPassedLastRun;
+let pipesPassedRecord;
 
 function setup() 
 {
@@ -35,6 +35,21 @@ function setup()
 
 function restart()
 {
+    if(bird)
+    {
+        pipesPassedLastRun = bird.pipesPassed;
+
+        if (bird.pipesPassed > pipesPassedRecord)
+        {
+            pipesPassedRecord = bird.pipesPassed;
+        }
+    }
+    else
+    {
+        pipesPassedLastRun = 0;
+        pipesPassedRecord = 0;
+    }
+
     renderer = new Renderer();
 
     floor = new Bounds(true, BOUNDS_THICKNESS);
