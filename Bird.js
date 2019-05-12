@@ -95,4 +95,48 @@ class Bird extends GameObject
             this.pipesPassed++;
         }
     }
+
+    nextPipeId()
+    {
+        for (let i = 0; i < 2; i++)
+        {
+            if (this.pipes.pipes.length == i)
+            {
+                return undefined;
+            }
+            
+            let distance = this.pipes.pipes[i].pos.x - (this.pos.x + BIRD_RADIUS);
+    
+            if (distance >= 0)
+            {
+                return i;
+            }
+        }
+
+        return undefined;
+    }
+
+    nextPipeX()
+    {
+        let nextPipeId = this.nextPipeId();
+
+        if (nextPipeId === undefined)
+        {
+            return 100000;
+        }
+
+        return this.pipes.pipes[nextPipeId].pos.x;
+    }
+
+    nextPipeGap()
+    {
+        let nextPipeId = this.nextPipeId();
+
+        if (nextPipeId === undefined)
+        {
+            return 0;
+        }
+
+        return this.pipes.pipes[nextPipeId].gap;
+    }
 }
