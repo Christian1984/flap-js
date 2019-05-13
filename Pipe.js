@@ -1,6 +1,6 @@
 class Pipe extends GameObject
 {
-    constructor()
+    constructor(pipeNumber)
     {
         super(width, 0);
 
@@ -12,6 +12,8 @@ class Pipe extends GameObject
             top: gap_pos - gap_height,
             bottom: gap_pos + gap_height
         };
+
+        this.pipeNumber = pipeNumber;
 
         this.vel.x = -PIPE_VELOCITY;
 
@@ -35,5 +37,10 @@ class Pipe extends GameObject
         rectMode(CORNER);
         rect(this.pos.x, -5, PIPE_WIDTH, this.gap.top + 5);
         rect(this.pos.x, this.gap.bottom, PIPE_WIDTH, height - this.gap.bottom + 5);
+
+        fill(0);
+        textSize(12);
+        textAlign(CENTER, BOTTOM);
+        text(this.pipeNumber, this.pos.x + PIPE_WIDTH / 2, this.gap.top - 12);
     }
 }

@@ -6,6 +6,7 @@ class Bird extends GameObject
         this.pipes = pipes;
         this.pipesPassed = 0;
         this.framesAlive = 0;
+        this.best = false;
     }
 
     update()
@@ -40,14 +41,22 @@ class Bird extends GameObject
 
     show()
     {
-        fill(255);
         
         if (!this.alive)
         {
-            fill(100);
+            return;
         }
         
         stroke(0);
+
+        if (this.best)
+        {
+            fill(0, 255, 0);
+        }
+        else
+        {
+            fill(255);
+        }
         ellipseMode(RADIUS);
         ellipse(this.pos.x, this.pos.y, BIRD_RADIUS, BIRD_RADIUS);
     }
@@ -94,49 +103,5 @@ class Bird extends GameObject
             pipe.passed = true;
             this.pipesPassed++;
         }
-    }
-
-    nextPipeId()
-    {
-        for (let i = 0; i < 2; i++)
-        {
-            if (this.pipes.pipes.length == i)
-            {
-                return undefined;
-            }
-            
-            let distance = this.pipes.pipes[i].pos.x - (this.pos.x + BIRD_RADIUS);
-    
-            if (distance >= 0)
-            {
-                return i;
-            }
-        }
-
-        return undefined;
-    }
-
-    nextPipeX()
-    {
-        let nextPipeId = this.nextPipeId();
-
-        if (nextPipeId === undefined)
-        {
-            return 100000;
-        }
-
-        return this.pipes.pipes[nextPipeId].pos.x;
-    }
-
-    nextPipeGap()
-    {
-        let nextPipeId = this.nextPipeId();
-
-        if (nextPipeId === undefined)
-        {
-            return 0;
-        }
-
-        return this.pipes.pipes[nextPipeId].gap;
     }
 }

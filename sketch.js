@@ -6,16 +6,17 @@ const CANVAS_HEIGHT = 600;
 const BOUNDS_THICKNESS = 20;
 const BIRD_RADIUS = 10;
 
-const POPULATION_SIZE = 10;
+const POPULATION_SIZE = 1000;
 const NN_SIZE_IN = 5;
-const NN_SIZE_HIDDEN = 8;
+const NN_SIZE_HIDDEN = 10;
 const NN_SIZE_OUT = 1;
+const MUTATION_RATE = 0.01;
 
 const PIPE_WIDTH = 40;
-const PIPE_MIN_GAP = 80;
-const PIPE_MAX_GAP = 160;
-const PIPE_MIN_DISTANCE = 250;
-const PIPE_MAX_DISTANCE = 400;
+const PIPE_MIN_GAP = 140;
+const PIPE_MAX_GAP = 200;
+const PIPE_MIN_DISTANCE = 400;
+const PIPE_MAX_DISTANCE = 600;
 const PIPE_VELOCITY = 3;
 
 const GRAVITY = 0.1;
@@ -28,20 +29,89 @@ let ceiling;
 let birds;
 let hud;
 
-let pipesPassedLastRun;
-let pipesPassedRecord;
+let birdsX;
+
+let pipesPassedLastRun = 0;
+let pipesPassedRecord = 0;
+let generation = 0;
+let frameAlive = 0;
+let alive = 0;
 
 let brains;
+
+let inputDiv;
+let sliderRenderCount;
+let checkBoxLimitFramerate;
 
 function setup() 
 {
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     frameRate(60);
+
+    birdsX = 0.1 * width;
     restart();
+
+    inputDiv = createDiv("");
+    sliderRenderCount = createSlider(0, POPULATION_SIZE, POPULATION_SIZE / 10, 1);
+    sliderRenderCount.parent(inputDiv);
+    checkBoxLimitFramerate = createCheckbox("Limit Frame Rate", true);
+    checkBoxLimitFramerate.parent(inputDiv);
+}
+
+function draw() 
+{
+    framesAlive++;
+    alive = 0;
+
+    if (checkBoxLimitFramerate.checked())
+    {
+        frameRate(60);
+    }
+    else
+    {
+        frameRate(1024);
+    }
+
+    for (let i = 0; i < POPULATION_SIZE; i++)
+    {
+        let bird = birds[i];
+
+        if (bird.alive)
+        {
+            let nextPipe = nextPipeId();
+
+            let input = [
+                bird.pos.y / height,
+                bird.vel.y / width,
+                nextPipeX(nextPipe) / width,
+                nextPipeGap(nextPipe).top / height,
+                nextPipeGap(nextPipe).bottom / height
+            ];
+
+            if (brains[i].predict(input) >= 0)
+            {
+                bird.flap();
+            }
+
+            bird.update();
+            alive++;
+        }
+    }
+    
+    pipes.update();
+    renderer.render(sliderRenderCount.value());
+
+    if (alive == 0)
+    {
+        restart();
+    }
 }
 
 function restart()
 {
+    generation++;
+    framesAlive = 0;
+
     if (brains)
     {
         cloneAndMutateBrains();
@@ -50,24 +120,6 @@ function restart()
     {
         initBrains();
     }
-
-    
-    /*
-    if(bird)
-    {
-        pipesPassedLastRun = bird.pipesPassed;
-        
-        if (bird.pipesPassed > pipesPassedRecord)
-        {
-            pipesPassedRecord = bird.pipesPassed;
-        }
-    }
-    else
-    {
-        pipesPassedLastRun = 0;
-        pipesPassedRecord = 0;
-    }
-    */
    
     renderer = new Renderer();
    
@@ -83,8 +135,8 @@ function restart()
     
     initBirds();
 
-    //hud = new Hud();
-    //renderer.addShowable(hud);
+    hud = new Hud();
+    renderer.addHud(hud);
 }
 
 function initBrains()
@@ -99,6 +151,65 @@ function initBrains()
 
 function cloneAndMutateBrains()
 {
+    let nextGenBrains = [];
+    
+    let totalFitness = 0;
+    let bestBrainIndex = 0;
+    let bestBrainFitness = 0;
+
+    for (let i = 0; i < brains.length; i++)
+    {
+        let fitness = birds[i].framesAlive * birds[i].framesAlive;
+        totalFitness += fitness;
+
+        if (fitness > bestBrainFitness)
+        {
+            bestBrainFitness = fitness;
+            bestBrainIndex = i;
+        }
+    }
+
+    pipesPassedLastRun = birds[bestBrainIndex].pipesPassed;
+    
+    if (pipesPassedLastRun > pipesPassedRecord)
+    {
+        pipesPassedRecord = pipesPassedLastRun;
+    }
+    
+    let s = "Cloning brains for generation " + generation + "\n==================================\n";
+    
+    for (let i = 0; i < brains.length - 1; i++)
+    {
+        let brainIndex = pickWeightedRandomBrain(totalFitness);
+        let clonedBrain = brains[brainIndex].clone(); //TODO: pick brain randomly but weighted by fitness
+        let mutationCount = clonedBrain.mutate(MUTATION_RATE);
+
+        s += "Mutated " + mutationCount + " weights for brain " + i + "\n";
+
+        nextGenBrains.push(clonedBrain);
+    }
+
+    console.log(s);
+    console.log("Best Brain: " + bestBrainIndex + " with Fitness " + bestBrainFitness);
+    nextGenBrains.push(brains[bestBrainIndex].clone());
+
+    brains = nextGenBrains;
+}
+
+function pickWeightedRandomBrain(totalFitness)
+{
+    let runningSum = 0;
+    let rand = random(totalFitness);
+
+    for (let j = 0; j < brains.length; j++)
+    {
+        runningSum += birds[j].framesAlive * birds[j].framesAlive;
+        if (rand < runningSum)
+        {
+            //console.log("Picked brain", j);
+            return j;
+        }
+    }
 }
 
 function initBirds()
@@ -107,36 +218,56 @@ function initBirds()
 
     for (let i = 0; i < POPULATION_SIZE; i++)
     {
-        let bird = new Bird(0.1 * width, 0.5 * height, pipes);
+        let bird = new Bird(birdsX, 0.5 * height, pipes);
+
+        if (generation > 1 && i == POPULATION_SIZE - 1)
+        {
+            bird.best = true;
+        }
+
         birds.push(bird);
-        renderer.addShowable(bird);
+        renderer.addShowable(bird, true);
     }
 }
 
-function draw() 
+function nextPipeId()
 {
-    for (let i = 0; i < POPULATION_SIZE; i++)
+    for (let i = 0; i < 2; i++)
     {
-        let bird = birds[i];
-
-        let input = [
-            bird.pos.y / height,
-            bird.vel.y / width,
-            bird.nextPipeX() / width,
-            bird.nextPipeGap().top / height,
-            bird.nextPipeGap().bottom / height
-        ];
-
-        if (brains[i].predict(input) >= 0)
+        if (pipes.pipes.length == i)
         {
-            bird.flap();
+            return undefined;
         }
+        
+        let distance = pipes.pipes[i].pos.x - (birdsX + BIRD_RADIUS);
 
-        bird.update();
+        if (distance >= 0)
+        {
+            return i;
+        }
     }
 
-    pipes.update();
-    renderer.render();
+    return undefined;
+}
+
+function nextPipeX(nextPipeId)
+{
+    if (nextPipeId === undefined)
+    {
+        return 100000;
+    }
+
+    return pipes.pipes[nextPipeId].pos.x;
+}
+
+function nextPipeGap(nextPipeId)
+{
+    if (nextPipeId === undefined)
+    {
+        return 0;
+    }
+
+    return pipes.pipes[nextPipeId].gap;
 }
 
 /*function keyPressed()

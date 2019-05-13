@@ -1,15 +1,20 @@
 class Hud extends Showable
 {
-    constructor(bird)
+    constructor()
     {
         super();
-        this.bird = bird;
     }
 
     show()
     {
         fill(0);
         textSize(12);
-        text("Pipes Passed (Current / Last / Best): " + bird.pipesPassed + " / " + pipesPassedLastRun + " / " + pipesPassedRecord + ", Frames Alive: " + bird.framesAlive + ", Framerate: " + frameRate().toFixed(), 3, 15);
+        textAlign(LEFT, BOTTOM);
+        text(
+            "Generation: " + generation + 
+            //", Pipes Passed (Last / Best): " + pipesPassedLastRun + " / " + pipesPassedRecord + 
+            ", Birds Alive: " + alive + 
+            ", Frames Alive: " + framesAlive + 
+            ", Framerate: " + frameRate().toFixed(), 3, 15);
     }
 }

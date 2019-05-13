@@ -7,13 +7,15 @@ class Pipes extends Showable
         this.pipes = [];
         this.pipeDistance = 0;
         this.nextPipeDistance = 0;
+        this.counter = 0;
     }
 
     spawnPipe()
     {
+        this.counter++;
         this.pipeDistance = 0;
         this.nextPipeDistance = random(PIPE_MIN_DISTANCE, PIPE_MAX_DISTANCE);
-        this.pipes.push(new Pipe());
+        this.pipes.push(new Pipe(this.counter));
     }
 
     update()
