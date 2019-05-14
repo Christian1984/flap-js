@@ -158,6 +158,7 @@ function cloneAndMutateBrains()
     let totalFitness = 0;
     
     let bestBrainIndex = 0;
+    let bestBrainFramesAlive = 0;
     let bestBrainFitness = 0;
 
     let mostPipesPassed = 0;
@@ -173,6 +174,7 @@ function cloneAndMutateBrains()
         if (fitness > bestBrainFitness)
         {
             bestBrainFitness = fitness;
+            bestBrainFramesAlive = birds[i].framesAlive;
             bestBrainIndex = i;
         }
 
@@ -215,8 +217,10 @@ function cloneAndMutateBrains()
     }
 
     //console.log(s);
-    console.log("Best Brain: " + bestBrainIndex + " with Fitness " + bestBrainFitness);
-    console.log("Best Brain Dump:", brains[bestBrainIndex].dump());
+    console.log("Best Brain: " + bestBrainIndex + " with Fitness " + bestBrainFitness + " and livespan (ticksAlive) of " + bestBrainFramesAlive + " ms");
+    console.log("Best Brain Dump:");
+    console.log(JSON.stringify(brains[bestBrainIndex].dump()));
+
     nextGenBrains.push(brains[bestBrainIndex].clone());
 
     brains = nextGenBrains;
