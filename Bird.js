@@ -109,9 +109,8 @@ class Bird extends GameObject
 
         let pipe = this.pipes.pipes[0];
 
-        if (this.pos.x - BIRD_RADIUS > pipe.pos.x + PIPE_WIDTH && !pipe.passed)
+        if (this.pos.x - BIRD_RADIUS > pipe.pos.x + PIPE_WIDTH && this.pipesPassed < pipe.pipeNumber)
         {
-            pipe.passed = true;
             this.pipesPassed++;
         }
     }

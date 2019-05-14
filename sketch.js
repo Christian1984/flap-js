@@ -178,16 +178,16 @@ function cloneAndMutateBrains()
             bestBrainIndex = i;
         }
 
-        /*let pipesPassed = birds[i].pipesPassed;
+        let pipesPassed = birds[i].pipesPassed;
 
         if (pipesPassed > mostPipesPassed)
         {
             mostPipesPassed = pipesPassed;
             mostPipesPassedIndex = i;
-        }*/
+        }
     }
     
-    /*if (bestBrainIndex != mostPipesPassedIndex)
+    if (bestBrainIndex != mostPipesPassedIndex)
     {
         warning++;
         console.log("WARNING #" + warning + ": Weird stuff happening!");
@@ -201,7 +201,7 @@ function cloneAndMutateBrains()
     if (pipesPassedLastRun > pipesPassedRecord)
     {
         pipesPassedRecord = pipesPassedLastRun;
-    }*/
+    }
     
     let s = "Cloning brains for generation " + generation + "\n==================================\n";
     

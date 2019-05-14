@@ -12,7 +12,7 @@ class Hud extends Showable
         textAlign(LEFT, BOTTOM);
         text(
             "Generation: " + generation + 
-            //", Pipes Passed (Last / Best): " + pipesPassedLastRun + " / " + pipesPassedRecord + 
+            ", Pipes Passed (Last / Best): " + pipesPassedLastRun + " / " + pipesPassedRecord + 
             ", Birds Alive: " + alive + 
             ", Frames Alive: " + generationFramesAlive + 
             ", Framerate: " + frameRate().toFixed(), 3, 15);
