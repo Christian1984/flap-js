@@ -175,4 +175,15 @@ class NeuralNetwork
 
         return rows;
     }
+
+    dump()
+    {
+        return {
+            numIn: this.in.size,
+            numHidden: this.hidden.size,
+            numOut: this.out.size,
+            weightsInHidden: this.weightsInHidden,
+            weightsHiddenOut: this.weightsHiddenOut
+        };
+    }
 }

@@ -14,7 +14,7 @@ class Hud extends Showable
             "Generation: " + generation + 
             //", Pipes Passed (Last / Best): " + pipesPassedLastRun + " / " + pipesPassedRecord + 
             ", Birds Alive: " + alive + 
-            ", Frames Alive: " + framesAlive + 
+            ", Frames Alive: " + generationFramesAlive + 
             ", Framerate: " + frameRate().toFixed(), 3, 15);
     }
 }

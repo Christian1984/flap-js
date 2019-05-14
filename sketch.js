@@ -34,8 +34,9 @@ let birdsX;
 let pipesPassedLastRun = 0;
 let pipesPassedRecord = 0;
 let generation = 0;
-let frameAlive = 0;
+let generationFramesAlive = 0;
 let alive = 0;
+let warning = 0;
 
 let brains;
 
@@ -60,7 +61,7 @@ function setup()
 
 function draw() 
 {
-    framesAlive++;
+    generationFramesAlive++;
     alive = 0;
 
     if (checkBoxLimitFramerate.checked())
@@ -110,8 +111,7 @@ function draw()
 function restart()
 {
     generation++;
-    framesAlive = 0;
-
+    
     if (brains)
     {
         cloneAndMutateBrains();
@@ -120,12 +120,12 @@ function restart()
     {
         initBrains();
     }
-   
+    
     renderer = new Renderer();
-   
+    
     floor = new Bounds(true, BOUNDS_THICKNESS);
     ceiling = new Bounds(false, BOUNDS_THICKNESS);
-   
+    
     pipes = new Pipes();
     pipes.spawnPipe();
     renderer.addShowable(pipes);
@@ -134,9 +134,11 @@ function restart()
     renderer.addShowable(ceiling);
     
     initBirds();
-
+    
     hud = new Hud();
     renderer.addHud(hud);
+
+    generationFramesAlive = 0;
 }
 
 function initBrains()
@@ -154,12 +156,18 @@ function cloneAndMutateBrains()
     let nextGenBrains = [];
     
     let totalFitness = 0;
+    
     let bestBrainIndex = 0;
     let bestBrainFitness = 0;
 
-    for (let i = 0; i < brains.length; i++)
+    let mostPipesPassed = 0;
+    let mostPipesPassedIndex = 0;
+
+    for (let i = 0; i < birds.length; i++)
     {
-        let fitness = birds[i].framesAlive * birds[i].framesAlive;
+        let fitness = birds[i].framesAlive 
+            * birds[i].framesAlive 
+            * birds[i].framesAlive;
         totalFitness += fitness;
 
         if (fitness > bestBrainFitness)
@@ -167,14 +175,31 @@ function cloneAndMutateBrains()
             bestBrainFitness = fitness;
             bestBrainIndex = i;
         }
+
+        /*let pipesPassed = birds[i].pipesPassed;
+
+        if (pipesPassed > mostPipesPassed)
+        {
+            mostPipesPassed = pipesPassed;
+            mostPipesPassedIndex = i;
+        }*/
+    }
+    
+    /*if (bestBrainIndex != mostPipesPassedIndex)
+    {
+        warning++;
+        console.log("WARNING #" + warning + ": Weird stuff happening!");
+        console.log("Generation was alive for " + generationFramesAlive + "ms");
+        console.log("bestBrainIndex", bestBrainIndex, "bestBrainFitness", bestBrainFitness, "framesAlive", birds[bestBrainIndex].framesAlive , " => pipesPassed", birds[bestBrainIndex].pipesPassed);
+        console.log("mostPipesPassedIndex", mostPipesPassedIndex, "mostPipesPassed", mostPipesPassed, "framesAlive", birds[mostPipesPassedIndex].framesAlive, " => fitness", birds[mostPipesPassedIndex].framesAlive * birds[mostPipesPassedIndex].framesAlive * birds[mostPipesPassedIndex].framesAlive);
     }
 
-    pipesPassedLastRun = birds[bestBrainIndex].pipesPassed;
+    pipesPassedLastRun = mostPipesPassed;
     
     if (pipesPassedLastRun > pipesPassedRecord)
     {
         pipesPassedRecord = pipesPassedLastRun;
-    }
+    }*/
     
     let s = "Cloning brains for generation " + generation + "\n==================================\n";
     
@@ -189,8 +214,9 @@ function cloneAndMutateBrains()
         nextGenBrains.push(clonedBrain);
     }
 
-    console.log(s);
+    //console.log(s);
     console.log("Best Brain: " + bestBrainIndex + " with Fitness " + bestBrainFitness);
+    console.log("Best Brain Dump:", brains[bestBrainIndex].dump());
     nextGenBrains.push(brains[bestBrainIndex].clone());
 
     brains = nextGenBrains;
@@ -203,7 +229,9 @@ function pickWeightedRandomBrain(totalFitness)
 
     for (let j = 0; j < brains.length; j++)
     {
-        runningSum += birds[j].framesAlive * birds[j].framesAlive;
+        runningSum += birds[j].framesAlive 
+            * birds[j].framesAlive
+            * birds[j].framesAlive;
         if (rand < runningSum)
         {
             //console.log("Picked brain", j);
@@ -218,7 +246,7 @@ function initBirds()
 
     for (let i = 0; i < POPULATION_SIZE; i++)
     {
-        let bird = new Bird(birdsX, 0.5 * height, pipes);
+        let bird = new Bird(birdsX, 0.5 * height, pipes, i);
 
         if (generation > 1 && i == POPULATION_SIZE - 1)
         {
