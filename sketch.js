@@ -43,6 +43,7 @@ let brains;
 let inputDiv;
 let sliderRenderCount;
 let checkBoxLimitFramerate;
+let sliderFramesHidden;
 
 function setup() 
 {
@@ -57,6 +58,8 @@ function setup()
     sliderRenderCount.parent(inputDiv);
     checkBoxLimitFramerate = createCheckbox("Limit Frame Rate", true);
     checkBoxLimitFramerate.parent(inputDiv);
+    sliderFramesHidden = createSlider(1, 1001, 1, 1);
+    sliderFramesHidden.parent(inputDiv);
 }
 
 function draw() 
@@ -100,7 +103,11 @@ function draw()
     }
     
     pipes.update();
-    renderer.render(sliderRenderCount.value());
+
+    if (generationFramesAlive == 1 || (!sliderFramesHidden.value() > 1000  && generationFramesAlive % sliderFramesHidden.value() == 0))
+    {
+        renderer.render(sliderRenderCount.value());
+    }
 
     if (alive == 0)
     {
@@ -162,7 +169,6 @@ function cloneAndMutateBrains()
     let bestBrainFitness = 0;
 
     let mostPipesPassed = 0;
-    let mostPipesPassedIndex = 0;
 
     for (let i = 0; i < birds.length; i++)
     {
@@ -186,15 +192,6 @@ function cloneAndMutateBrains()
             mostPipesPassedIndex = i;
         }
     }
-    
-    if (bestBrainIndex != mostPipesPassedIndex)
-    {
-        warning++;
-        console.log("WARNING #" + warning + ": Weird stuff happening!");
-        console.log("Generation was alive for " + generationFramesAlive + "ms");
-        console.log("bestBrainIndex", bestBrainIndex, "bestBrainFitness", bestBrainFitness, "framesAlive", birds[bestBrainIndex].framesAlive , " => pipesPassed", birds[bestBrainIndex].pipesPassed);
-        console.log("mostPipesPassedIndex", mostPipesPassedIndex, "mostPipesPassed", mostPipesPassed, "framesAlive", birds[mostPipesPassedIndex].framesAlive, " => fitness", birds[mostPipesPassedIndex].framesAlive * birds[mostPipesPassedIndex].framesAlive * birds[mostPipesPassedIndex].framesAlive);
-    }
 
     pipesPassedLastRun = mostPipesPassed;
     
@@ -203,7 +200,7 @@ function cloneAndMutateBrains()
         pipesPassedRecord = pipesPassedLastRun;
     }
     
-    let s = "Cloning brains for generation " + generation + "\n==================================\n";
+    //let s = "Cloning brains for generation " + generation + "\n==================================\n";
     
     for (let i = 0; i < brains.length - 1; i++)
     {
@@ -211,14 +208,15 @@ function cloneAndMutateBrains()
         let clonedBrain = brains[brainIndex].clone(); //TODO: pick brain randomly but weighted by fitness
         let mutationCount = clonedBrain.mutate(MUTATION_RATE);
 
-        s += "Mutated " + mutationCount + " weights for brain " + i + "\n";
+        //s += "Mutated " + mutationCount + " weights for brain " + i + "\n";
 
         nextGenBrains.push(clonedBrain);
     }
 
     //console.log(s);
-    console.log("Best Brain: " + bestBrainIndex + " with Fitness " + bestBrainFitness + " and livespan (ticksAlive) of " + bestBrainFramesAlive + " ms");
-    console.log("Best Brain Dump:");
+    
+
+    console.log("Best Brain: " + bestBrainIndex + " with Fitness " + bestBrainFitness + " and livespan of " + bestBrainFramesAlive + " ticks");
     console.log(JSON.stringify(brains[bestBrainIndex].dump()));
 
     nextGenBrains.push(brains[bestBrainIndex].clone());
