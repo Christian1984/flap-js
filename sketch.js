@@ -43,7 +43,6 @@ let brains;
 let inputDiv;
 let sliderRenderCount;
 let checkBoxLimitFramerate;
-let sliderFramesHidden;
 
 function setup() 
 {
@@ -58,8 +57,6 @@ function setup()
     sliderRenderCount.parent(inputDiv);
     checkBoxLimitFramerate = createCheckbox("Limit Frame Rate", true);
     checkBoxLimitFramerate.parent(inputDiv);
-    sliderFramesHidden = createSlider(1, 1001, 1, 1);
-    sliderFramesHidden.parent(inputDiv);
 }
 
 function draw() 
@@ -76,20 +73,23 @@ function draw()
         frameRate(1024);
     }
 
+    let nextPipe = nextPipeId();
+    let npx = nextPipeX(nextPipe);
+    let npg = nextPipeGap(nextPipe);
+
     for (let i = 0; i < POPULATION_SIZE; i++)
     {
         let bird = birds[i];
 
         if (bird.alive)
         {
-            let nextPipe = nextPipeId();
 
             let input = [
                 bird.pos.y / height,
                 bird.vel.y / width,
-                nextPipeX(nextPipe) / width,
-                nextPipeGap(nextPipe).top / height,
-                nextPipeGap(nextPipe).bottom / height
+                npx / width,
+                npg.top / height,
+                npg.bottom / height
             ];
 
             if (brains[i].predict(input) >= 0)
@@ -103,11 +103,7 @@ function draw()
     }
     
     pipes.update();
-
-    if (generationFramesAlive == 1 || (!sliderFramesHidden.value() > 1000  && generationFramesAlive % sliderFramesHidden.value() == 0))
-    {
-        renderer.render(sliderRenderCount.value());
-    }
+    renderer.render(sliderRenderCount.value());
 
     if (alive == 0)
     {
